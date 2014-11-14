@@ -7,72 +7,71 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-Dim WithEvents curCal As Items
-Attribute curCal.VB_VarHelpID = -1
-Dim newCalFolder As Outlook.Folder
-  
-Private Sub Application_Startup()
+Private Sub run()
    Dim NS As Outlook.NameSpace
+   Dim newCalFolder As Outlook.Folder
+   
+   Dim curCal As Items
+   
    Set NS = Application.GetNamespace("MAPI")
    ' default calendar
-   Set curCal = NS.GetDefaultFolder(olFolderCalendar).Items
+   'Cornell Tech - Academic & Campus Events <cutech-academic@cornell.edu>
+   Set curCalFolder = GetFolderPath("\Calendar")
+   
+   
+        Dim CalendarFolder As Outlook.Folder
+        Dim objOwner As Outlook.Recipient
+           
+           'calendar you are copying to
+        Set objOwner = NS.CreateRecipient("cutech-academic@cornell.edu")
+        objOwner.Resolve
+              
+         
+         If objOwner.Resolved Then
+           MsgBox objOwner.Name
+         
+          Set newCalFolder = NS.GetSharedDefaultFolder(objOwner, olFolderCalendar)
+          Set Items = newCalFolder.Items
+         End If
+   
+   Set curCal = Items
    'calendar you are copying to
-   Set newCalFolder = GetFolderPath("me@outlook.com\Calendar")
+   Set newCalFolder = GetFolderPath("mk2298@cornell.edu\Calendar\TestCal")
    Set NS = Nothing
-End Sub
-  
-Private Sub curCal_ItemAdd(ByVal Item As Object)
-Dim cAppt As AppointmentItem
-Dim moveCal As AppointmentItem
- 
-If Item.BusyStatus = olBusy Then
- 
-Set cAppt = Application.CreateItem(olAppointmentItem)
- 
-With cAppt
-    .Subject = "Copied: " & Item.Subject
-    .Start = Item.Start
-    .Duration = Item.Duration
-    .Location = Item.Location
-    .Body = Item.Body
-End With
- 
-' set the category after it's moved to force EAS to sync changes
- Set moveCal = cAppt.Move(newCalFolder)
- moveCal.Categories = "moved"
- moveCal.Save
- 
-    End If
- End Sub
- 
- 
-Private Sub curCal_ItemChange(ByVal Item As Object)
-Dim cAppt As AppointmentItem
-Dim objAppointment As AppointmentItem
-Dim strStart, strSubject As String
+   
+   ' copy
+   
+   curCal.IncludeRecurrences = True
+   
+    Dim cAppt As AppointmentItem
+    Dim moveCal As AppointmentItem
+    Dim objAppointment As AppointmentItem
      
- On Error Resume Next
+     On Error Resume Next
      
-strSubject = "Copied: " & Item.Subject
-strStart = Item.Start
- 
-For Each objAppointment In newCalFolder.Items
- If objAppointment.Subject = strSubject And objAppointment.Start = strStart Then
-         Set cAppt = objAppointment
-   End If
- Next
-  
-With cAppt
-    .Subject = "Copied: " & Item.Subject
-    .Start = Item.Start
-    .Duration = Item.Duration
-    .Location = Item.Location
-    .Body = Item.Body
-    .Save
-End With
-  
+    For Each objAppointment In curCal
+     
+       'If Item.BusyStatus = olBusy Then
+        
+       Set cAppt = Application.CreateItem(olAppointmentItem)
+        
+       With cAppt
+           .Subject = "Copied: " & objAppointment.Subject
+           .Start = objAppointment.Start
+           .Duration = objAppointment.Duration
+           .Location = objAppointment.Location
+           .Body = objAppointment.Body
+       End With
+        
+       ' set the category after it's moved to force EAS to sync changes
+        Set moveCal = cAppt.Move(newCalFolder)
+        moveCal.Categories = "moved"
+        moveCal.Save
+    
+       'End If
+    Next
+   
 End Sub
-
 
 Function GetFolderPath(ByVal FolderPath As String) As Outlook.Folder
     Dim oFolder As Outlook.Folder
