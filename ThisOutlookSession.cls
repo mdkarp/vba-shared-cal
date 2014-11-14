@@ -28,7 +28,7 @@ Private Sub run()
               
          
          If objOwner.Resolved Then
-           MsgBox objOwner.Name
+           'MsgBox objOwner.Name
          
           Set newCalFolder = NS.GetSharedDefaultFolder(objOwner, olFolderCalendar)
           Set Items = newCalFolder.Items
@@ -38,6 +38,7 @@ Private Sub run()
    'calendar you are copying to
    Set newCalFolder = GetFolderPath("mk2298@cornell.edu\Calendar\TestCal")
    Set NS = Nothing
+   
    
    ' copy
    
@@ -53,7 +54,7 @@ Private Sub run()
      
        'If Item.BusyStatus = olBusy Then
         
-       Set cAppt = Application.CreateItem(olAppointmentItem)
+       Set cAppt = newCalFolder.Items.Add(olAppointmentItem)
         
        With cAppt
            .Subject = "Copied: " & objAppointment.Subject
@@ -64,12 +65,13 @@ Private Sub run()
        End With
         
        ' set the category after it's moved to force EAS to sync changes
-        Set moveCal = cAppt.Move(newCalFolder)
-        moveCal.Categories = "moved"
-        moveCal.Save
+        'Set moveCal = cAppt.Move(newCalFolder)
+       ' moveCal.Categories = "moved"
+        cAppt.Save
     
        'End If
     Next
+
    
 End Sub
 
@@ -104,4 +106,20 @@ GetFolderPath_Error:
     Exit Function
 End Function
 
+
+ 
+Sub CopyAttachments(objSourceItem, objTargetItem)
+   Set fso = CreateObject("Scripting.FileSystemObject")
+   Set fldTemp = fso.GetSpecialFolder(2) ' TemporaryFolder
+   strPath = fldTemp.Path & "\"
+   For Each objAtt In objSourceItem.Attachments
+      strFile = strPath & objAtt.FileName
+      objAtt.SaveAsFile strFile
+      objTargetItem.Attachments.Add strFile, , , objAtt.DisplayName
+      fso.DeleteFile strFile
+   Next
+ 
+   Set fldTemp = Nothing
+   Set fso = Nothing
+End Sub
 
