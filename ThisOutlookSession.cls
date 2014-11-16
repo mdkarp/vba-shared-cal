@@ -41,7 +41,7 @@ Private Sub run()
    
    
    ' copy
-   
+   curCal.Sort "[Start]"
    curCal.IncludeRecurrences = True
    
     Dim cAppt As AppointmentItem
@@ -62,6 +62,7 @@ Private Sub run()
            .Duration = objAppointment.Duration
            .Location = objAppointment.Location
            .Body = objAppointment.Body
+           .Categories = objAppointment.Categories
        End With
         
        ' set the category after it's moved to force EAS to sync changes
@@ -106,20 +107,6 @@ GetFolderPath_Error:
     Exit Function
 End Function
 
+Function DeleteCal()
 
- 
-Sub CopyAttachments(objSourceItem, objTargetItem)
-   Set fso = CreateObject("Scripting.FileSystemObject")
-   Set fldTemp = fso.GetSpecialFolder(2) ' TemporaryFolder
-   strPath = fldTemp.Path & "\"
-   For Each objAtt In objSourceItem.Attachments
-      strFile = strPath & objAtt.FileName
-      objAtt.SaveAsFile strFile
-      objTargetItem.Attachments.Add strFile, , , objAtt.DisplayName
-      fso.DeleteFile strFile
-   Next
- 
-   Set fldTemp = Nothing
-   Set fso = Nothing
-End Sub
-
+End Function
