@@ -10,10 +10,32 @@ Attribute VB_Exposed = True
 Private Sub run()
    Dim NS As Outlook.NameSpace
    Dim newCalFolder As Outlook.Folder
+   Dim readCalFolder As Outlook.Folder
    
+   Dim newCal As Items
    Dim curCal As Items
    
    Set NS = Application.GetNamespace("MAPI")
+   
+   
+   'calendar you are copying to
+   Set newCalFolder = GetFolderPath("mk2298@cornell.edu\Calendar\TestCal")
+   
+   ' dump calendar to replace everything
+   Dim delAppt As AppointmentItem
+   
+   Set newCal = newCalFolder.Items
+   
+   newCal.Sort "[Start]"
+   newCal.IncludeRecurrences = True
+   
+   'On Error Resume Next
+     
+    For Each delAppt In newCal
+        delAppt.Delete
+    Next
+   
+   
    ' default calendar
    'Cornell Tech - Academic & Campus Events <cutech-academic@cornell.edu>
    Set curCalFolder = GetFolderPath("\Calendar")
@@ -22,7 +44,7 @@ Private Sub run()
         Dim CalendarFolder As Outlook.Folder
         Dim objOwner As Outlook.Recipient
            
-           'calendar you are copying to
+        'calendar you are copying to
         Set objOwner = NS.CreateRecipient("cutech-academic@cornell.edu")
         objOwner.Resolve
               
@@ -30,13 +52,12 @@ Private Sub run()
          If objOwner.Resolved Then
            'MsgBox objOwner.Name
          
-          Set newCalFolder = NS.GetSharedDefaultFolder(objOwner, olFolderCalendar)
-          Set Items = newCalFolder.Items
+          Set readCalFolder = NS.GetSharedDefaultFolder(objOwner, olFolderCalendar)
+          Set Items = readCalFolder.Items
          End If
    
    Set curCal = Items
-   'calendar you are copying to
-   Set newCalFolder = GetFolderPath("mk2298@cornell.edu\Calendar\TestCal")
+
    Set NS = Nothing
    
    
