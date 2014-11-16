@@ -57,7 +57,7 @@ Private Sub run()
        Set cAppt = newCalFolder.Items.Add(olAppointmentItem)
         
        With cAppt
-           .Subject = "Copied: " & objAppointment.Subject
+           .Subject = objAppointment.Subject
            .Start = objAppointment.Start
            .Duration = objAppointment.Duration
            .Location = objAppointment.Location
@@ -65,9 +65,6 @@ Private Sub run()
            .Categories = objAppointment.Categories
        End With
         
-       ' set the category after it's moved to force EAS to sync changes
-        'Set moveCal = cAppt.Move(newCalFolder)
-       ' moveCal.Categories = "moved"
         cAppt.Save
     
        'End If
@@ -107,6 +104,3 @@ GetFolderPath_Error:
     Exit Function
 End Function
 
-Function DeleteCal()
-
-End Function
